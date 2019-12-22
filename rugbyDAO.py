@@ -1,14 +1,15 @@
 import mysql.connector
+import dbConfig as cfg
 
 class RugbyDAO:
     db=""
 
     def __init__(self):
         self.db = mysql.connector.connect(
-            host = "localhost",
-            user = "root",
-            password = "@M4ir3s_2308@",
-            database = "rugby"
+            host = cfg.mysql['host'],
+            user = cfg.mysql['username'],
+            password = cfg.mysql['password'],
+            database = cfg.mysql['database']
         )
           
     # create a new team in rugby database 
