@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 # config files
-dbConfig.py
+*Config.py
+*.sql
