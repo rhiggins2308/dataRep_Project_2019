@@ -49,6 +49,7 @@
         </div>
     </body>
     <script>
+        host = window.location.origin
         function showCreate(){
             document.getElementById('showCreateButton').style.display="none";
             document.getElementById('teamTable').style.display="none";
@@ -189,7 +190,8 @@
     
         function getAll(){
         $.ajax({
-            "url": "http://127.0.0.1:5000/teams",
+            //"url": "http://127.0.0.1:5000/teams",
+            "url": host + "/teams",
             "method":"GET",
             "data":"",
             "dataType": "JSON",
@@ -209,7 +211,8 @@
         //var team = {"id":team D 1234","name":"Fiat","conf":"Punto","country":3000}
         console.log(JSON.stringify(team));
         $.ajax({
-            "url": "http://127.0.0.1:5000/teams",
+            //"url": "http://127.0.0.1:5000/teams",
+            "url": host + "/teams",
             "method":"POST",
             "data":JSON.stringify(team),
             "dataType": "JSON",
@@ -229,7 +232,8 @@
         //var team = {"id":"12 D 1234","country":8000}
         console.log(JSON.stringify(team));
         $.ajax({
-            "url": "http://127.0.0.1:5000/teams/"+encodeURI(team.id),
+            //"url": "http://127.0.0.1:5000/teams/"+encodeURI(team.id),
+            "url": host + "/teams/" + encodeURI(team.id),
             "method":"PUT",
             "data":JSON.stringify(team),
             "dataType": "JSON",
@@ -246,7 +250,8 @@
     function deleteTeam(id){
         //console.log(JSON.stringify('deleting'+id));
         $.ajax({
-            "url": "http://127.0.0.1:5000/teams/"+encodeURI(id),
+            //"url": "http://127.0.0.1:5000/teams/"+encodeURI(id),
+            "url": host + "/teams/" + encodeURI(id),
             "method":"DELETE",
             "data":"",
             "dataType": "JSON",
