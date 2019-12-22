@@ -3,21 +3,19 @@
     <head>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <title>View League Teams</title>
+        <title>View Rugby Teams</title>
     </head>
     <body>
-        <h1>Teams</h1><br/>
+        <h1>Rugby Teams</h1><br/>
+        <div> <button id="showCreateButton" onclick="showCreate()">Create</button> </div><br/>
+        
         <div>
-            <button id="showCreateButton" onclick="showCreate()">Create</button>
-        </div>
-        <br/>
-        <div>
-            <table border="1" class="table" id="leagueTable">
+            <table class="table" id="teamTable">
                 <tr>
                     <th>ID</th>
                     <th>Team Name</th>
-                    <th>Country</th>
                     <th>Conference</th>
+                    <th>Country</th>
                     <th>Points</th>
                     <th>Update</th>
                     <th>Delete</th>
@@ -27,22 +25,24 @@
         <br/>
         <div id='createUpdateForm' style="display: none">
             <h2><span id="createLabel">Create a</span> <span id="updateLabel">Update this</span> Team</h2><br/>
-            
-            ID          <input type="text" name="id"><br/>
-            Team Name   <input type="text" name="name"><br/> 
-            Country     <select name="country">
-                            <option value="Ireland">Ireland</option>
-                            <option value="Italy">Italy</option>
-                            <option value="Scotland">Scotland</option>
-                            <option value="South Africa">South Africa</option>
-                            <option value="Wales">Wales</option>
-                        </select><br/>
+                        <input type="hidden" name="id"/>
+            Team Name   <input type="text" name="name"/><br/>
             Conference  <select name="conf">
-                            <option value="A">A</option>
-                            <option value="B">B</option>
+                          <option value="none"></option>
+                          <option value="A">A</option>
+                          <option value="B">B</option>
+                          <!--<option value="NA">N/A</option>-->
                         </select><br/>
-            Points     <input type="number" name="points"><br/>
-            
+            Country     <select name="country">
+                          <option value="none"></option>
+                          <option value="Ireland">Ireland</option>
+                          <option value="Italy">Italy</option>
+                          <option value="Scotland">Scotland</option>
+                          <option value="South Africa">South Africa</option>
+                          <option value="Wales">Wales</option>
+                        </select><br/>
+            Points      <input type="number" name="points"/><br/>
+
             <br/>
             <span><button id="doCreateButton" onclick="doCreate()">Create</button></span>
             <span><button id="doUpdateButton" onclick="doUpdate()">Update</button></span>
@@ -51,7 +51,7 @@
     <script>
         function showCreate(){
             document.getElementById('showCreateButton').style.display="none";
-            document.getElementById('leagueTable').style.display="none";
+            document.getElementById('teamTable').style.display="none";
             document.getElementById('createUpdateForm').style.display="block";
 
             document.getElementById('createLabel').style.display="inline";
@@ -62,7 +62,7 @@
 
         function showUpdate(buttonElement){
             document.getElementById('showCreateButton').style.display="none";
-            document.getElementById('leagueTable').style.display="none";
+            document.getElementById('teamTable').style.display="none";
             document.getElementById('createUpdateForm').style.display="block";
 
             document.getElementById('createLabel').style.display="none";
@@ -80,38 +80,32 @@
         function doCreate(){
             var form = document.getElementById('createUpdateForm');
             var team = {};
-            team.id = form.querySelector('input[name="id"]').value;
-            team.name = form.querySelector('select[name="name"]').value;
-            team.country = form.querySelector('input[name="country"]').value;
-            team.conf = form.querySelector('input[name="conf"]').value;
+            team.name = form.querySelector('input[name="name"]').value;
+            team.conf = form.querySelector('select[name="conf"]').value;
+            team.country = form.querySelector('select[name="country"]').value;
             team.points = form.querySelector('input[name="points"]').value;
-
+            
+            console.log(JSON.stringify(team))
             createTeam(team)
-            addTeamToTable(team);
-            clearForm();
-
-            showViewAll();
         }
 
         function showViewAll(){
             document.getElementById('showCreateButton').style.display="block";
-            document.getElementById('leagueTable').style.display="block";
+            document.getElementById('teamTable').style.display="block";
             document.getElementById('createUpdateForm').style.display="none";
         }
 
         function clearForm(){
             var form = document.getElementById('createUpdateForm');
-            form.querySelector('input[name="id"]').disabled = false;
-            form.querySelector('input[name="id"]').value = '';
-            form.querySelector('select[name="name"]').value= '';
-            form.querySelector('input[name="country"]').value= '';
-            form.querySelector('input[name="conf"]').value= '';
+            form.querySelector('input[name="name"]').value= '';
+            //form.querySelector('input[name="conf"]').value= 'none';
+            //form.querySelector('input[name="country"]').value= 'none';
             form.querySelector('input[name="points"]').value= '';
         }
 
         // call this function for each team returned by the get all
-        function addTeamToTable(car){
-            var tableElement = document.getElementById('leagueTable');
+        function addTeamToTable(team){
+            var tableElement = document.getElementById('teamTable');
             var rowElement = tableElement.insertRow(-1);
             
             rowElement.setAttribute('id', team.id);
@@ -121,9 +115,9 @@
             var cell2 = rowElement.insertCell(1);
             cell2.innerHTML = team.name;
             var cell3 = rowElement.insertCell(2);
-            cell3.innerHTML = team.country;
+            cell3.innerHTML = team.conf;
             var cell4 = rowElement.insertCell(3);
-            cell4.innerHTML = team.conf;
+            cell4.innerHTML = team.country;
             var cell5 = rowElement.insertCell(4);
             cell5.innerHTML = team.points;
             var cell6 = rowElement.insertCell(5);
@@ -134,32 +128,34 @@
         
         function getTeamFromRow(rowElement){
             var team ={};
-            team.id = rowElement.cells[0].firstChild.textContent;
+            team.id = rowElement.getAttribute('id');
             team.name = rowElement.cells[1].firstChild.textContent;
-            team.country = rowElement.cells[2].firstChild.textContent;
-            team.conf = rowElement.cells[3].firstChild.textContent;
+            team.conf = rowElement.cells[2].firstChild.textContent;
+            team.country = rowElement.cells[3].firstChild.textContent;
             team.points = rowElement.cells[4].firstChild.textContent;
             return team;
         }
 
         function populateFormWithTeam(team){
-            var form = document.getElementById('createUpdateForm');
-            form.querySelector('input[name="id"]').disabled = true;
-            form.querySelector('input[name="id"]').value = team.id;
-            form.querySelector('select[name="name"]').value= team.name;
-            form.querySelector('input[name="country"]').value= team.country;
-            form.querySelector('input[name="conf"]').value= team.conf;
-            form.querySelector('input[name="points"]').value= team.points;
+            var form = document.getElementById('createUpdateForm')
+            form.querySelector('input[name="id"]').disabled = true
+            
+            form.querySelector('input[name="id"]').value = team.id
+            form.querySelector('input[name="name"]').value= team.name
+            form.querySelector('select[name="conf"]').value= team.conf
+            form.querySelector('select[name="country"]').value= team.country
+            form.querySelector('input[name="points"]').value= team.points
+            return team
         }
 
         function getTeamFromForm(){
             var form = document.getElementById('createUpdateForm');
             var team = {};
             team.id = form.querySelector('input[name="id"]').value;
-            team.name = form.querySelector('select[name="name"]').value;
-            team.country = form.querySelector('input[name="country"]').value;
-            team.conf = form.querySelector('input[name="conf"]').value;
-            team.points = form.querySelector('input[name="points"]').value;
+            team.name = form.querySelector('input[name="name"]').value;
+            team.conf = form.querySelector('select[name="conf"]').value;
+            team.country = form.querySelector('select[name="country"]').value;
+            team.points = parseInt(form.querySelector('input[name="points"]').value);
             console.log(JSON.stringify(team));
             return team;
         }
@@ -167,8 +163,8 @@
         function setTeamInRow(rowElement, team){
             rowElement.cells[0].firstChild.textContent = team.id;
             rowElement.cells[1].firstChild.textContent = team.name;
-            rowElement.cells[2].firstChild.textContent= team.country;
-            rowElement.cells[3].firstChild.textContent= team.conf;
+            rowElement.cells[2].firstChild.textContent= team.conf;
+            rowElement.cells[3].firstChild.textContent= team.country;
             rowElement.cells[4].firstChild.textContent= team.points;
         }
 
@@ -183,7 +179,7 @@
         }
 
         function doDelete(r){
-            var tableElement = document.getElementById('leagueTable');
+            var tableElement = document.getElementById('teamTable');
             var rowElement = r.parentNode.parentNode;
             var index = rowElement.rowIndex;
             
@@ -193,13 +189,13 @@
     
         function getAll(){
         $.ajax({
-            "url": "http://127.0.0.1:5000/pro14",
+            "url": "http://127.0.0.1:5000/teams",
             "method":"GET",
             "data":"",
             "dataType": "JSON",
             "success":function(result){
                 //console.log(result);
-                for (team of result.pro14){
+                for (team of result){
                     addTeamToTable(team);
                 }
                 
@@ -210,17 +206,19 @@
         });
     }
     function createTeam(team){
-        //var team = {"id":"15","name":"New Test Team","country":"Zanzibar","conf":"C", "points":45}
+        //var team = {"id":team D 1234","name":"Fiat","conf":"Punto","country":3000}
         console.log(JSON.stringify(team));
         $.ajax({
-            "url": "http://127.0.0.1:5000/pro14",
+            "url": "http://127.0.0.1:5000/teams",
             "method":"POST",
             "data":JSON.stringify(team),
             "dataType": "JSON",
             contentType: "application/json; charset=utf-8",
             "success":function(result){
-                //console.log(result);
-                 
+              team.id = result.id
+              addTeamToTable(team);
+              clearForm();
+              showViewAll();
             },
             "error":function(xhr,status,error){
                 console.log("error: "+status+" msg:"+error);
@@ -228,10 +226,10 @@
         });
     }
     function updateTeam(team){
-        //var team = {"id":"1","points":0}
+        //var team = {"id":"12 D 1234","country":8000}
         console.log(JSON.stringify(team));
         $.ajax({
-            "url": "http://127.0.0.1:5000/pro14/"+encodeURI(team.id),
+            "url": "http://127.0.0.1:5000/teams/"+encodeURI(team.id),
             "method":"PUT",
             "data":JSON.stringify(team),
             "dataType": "JSON",
@@ -246,10 +244,9 @@
         });
     }
     function deleteTeam(id){
-        //var team = {"id":"15"}
-        console.log(JSON.stringify(team));
+        //console.log(JSON.stringify('deleting'+id));
         $.ajax({
-            "url": "http://127.0.0.1:5000/pro14/"+encodeURI(id),
+            "url": "http://127.0.0.1:5000/teams/"+encodeURI(id),
             "method":"DELETE",
             "data":"",
             "dataType": "JSON",
